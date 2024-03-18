@@ -1,20 +1,20 @@
-from flask import Flask, request, jsonify
 import os
-from werkzeug.utils import secure_filename
-import numpy as np
-from scipy.io import wavfile
-from scipy.fft import fft
-from pydub import AudioSegment
-import wave
-import base64
 import io
+import base64
+import librosa
+import numpy as np
+import matplotlib.pyplot as plt
+
+from datetime import datetime
+from pydub import AudioSegment
+from scipy.io.wavfile import read
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = r'C:\Users\joaop\Documents\CentraleSupélec\3A\Projet Sopra Steria\AnalyseAudioExpo\backend'
+UPLOAD_FOLDER = r'C:\Users\joaop\Documents\CentraleSupélec\3A\Projet Sopra Steria\AnalyseAudioExpo\backend\ReceivedFiles'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
@@ -23,28 +23,29 @@ def upload_audio():
         return jsonify({"error": "No audio file part"}), 400
 
     audio = request.files['audio']
-    print("AAAAAAAAA", audio)
-    # Define the path where the file will be saved
-    filepath = os.path.join(UPLOAD_FOLDER, audio.filename)
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")    
+    file_name = f"Rec_{timestamp}"
+    audio.filename = f"{file_name}.3gp"
     
-    save_path = os.path.join(r'C:\Users\joaop\Documents\CentraleSupélec\3A\Projet Sopra Steria\AnalyseAudioExpo\backend\output.wav')
+    received_audio_path = os.path.join(UPLOAD_FOLDER, audio.filename)
     
-    # Save the file to the specified path
-    audio.save(filepath)
+    # Save original audio file
+    audio.save(received_audio_path)
+    
 
-    print("Received audio file:", audio.filename)
+    converted_file_path = os.path.join(UPLOAD_FOLDER, f'{file_name}.wav')
+    
+    convert_3gp_to_wav(received_audio_path, converted_file_path)
 
-    save_audio_blob_to_wav(audio.read(), save_path)
-
-    # audio_vector, fft_result = process_audio(filepath)
+    fft_img = plot_fft_from_wav(converted_file_path, file_name)
+    time_img = plot_audio_time(converted_file_path, file_name)
 
     response = jsonify({
-        'message': 'File uploaded and processed successfully'
-        # 'filename': audio.filename,
-        # 'audio_vector': audio_vector.tolist(),  # Convert numpy array to list for JSON serialization
-        # 'fft': fft_result.tolist()
+        'message': 'File uploaded and processed successfullyy',
+        'fft_img': fft_img,
+        'time_img': time_img
     })
-    print(response)
     return response, 200
 
 
@@ -54,38 +55,77 @@ def test():
         'message': 'bonjour'
     }), 200
 
+def plot_fft_from_wav(file_path, file_name):
+    # Load the audio file
+    y, sr = librosa.load(file_path)
+
+    # Compute FFT
+    fft = np.fft.fft(y)
     
-def process_audio(file_path):
-    print(file_path)
-    # Read the audio file
-    audio = AudioSegment.from_wav(file_path)
-
-    # Compute the FFT
-    fft_result = fft(audio)
+    # Compute magnitude spectrum
+    magnitude = np.abs(fft)
     
-    # Return only the magnitude of the FFT and the audio vector
-    fft_magnitude = np.abs(fft_result)
+    # Create frequency variable
+    frequency = np.linspace(0, sr, len(magnitude))
+
+    # Plotting the magnitude spectrum
+    plt.figure(figsize=(10, 4))
+    plt.plot(frequency[:int(len(frequency)/2)], magnitude[:int(len(magnitude)/2)]) # Plotting only the first half to avoid mirroring
+    plt.title('Magnitude Spectrum')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Magnitude')
+
+    # img_path = os.path.join(UPLOAD_FOLDER, f'{file_name}_fft.png')
+    # plt.savefig(img_path)
+    # plt.close()
     
-    return audio, fft_magnitude
+    # Convert plot to image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    plt.close()
 
-def save_audio_blob_to_wav(audio_blob, output_file_path):
-    # Decode the base64 encoded audio data
-    audio_data = base64.b64decode(audio_blob)
+    # Encode image to base64
+    image_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    
+    return image_data
 
-    # Write the audio data to a WAV file
-    with wave.open(output_file_path, 'wb') as wav_file:
-        # Set the WAV file parameters (1 channel, 16-bit, 44100 Hz sample rate)
-        wav_file.setnchannels(1)
-        wav_file.setsampwidth(2)  # 2 bytes for 16-bit audio
-        wav_file.setframerate(44100)
+def plot_audio_time(file_path, file_name):
+    # Read audio samples
+    input_data = read(file_path)
+    audio = input_data[1]
 
-        # Write the audio data to the WAV file
-        wav_file.writeframes(audio_data)
+    plt.plot(audio)
 
-# Example usage:
-audio_blob = b'base64_encoded_audio_data_here'
-output_file_path = 'output.wav'
+    # Label the axes
+    plt.ylabel("Amplitude")
+    plt.xlabel("Time")
 
+    # Set the title
+    plt.title("Sample Wav")
+
+    # Display the plot
+    # img_path = os.path.join(UPLOAD_FOLDER, f'{file_name}_time.png')
+    # plt.savefig(img_path)
+    # plt.close()
+    
+
+    # Convert plot to image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    plt.close()
+
+    image_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    return image_data
+
+def convert_3gp_to_wav(input_file, output_file):
+    # Load the .3gp file
+    audio = AudioSegment.from_file(input_file, format="3gp")
+    
+    # Export the audio to .wav format
+    audio.export(output_file, format="wav")
 
 if __name__ == '__main__':
     app.run(debug=True)
