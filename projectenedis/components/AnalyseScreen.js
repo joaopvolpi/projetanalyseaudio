@@ -3,10 +3,44 @@ import { StyleSheet, Text, ScrollView, View, Image, Button, Alert } from 'react-
 
 const AnalyseScreen = ({ route }) => {
   // Extracting FFT and time images from route params
-  const { fftImage, timeImage } = route.params;
+  const { fftImage, timeImage, audio } = route.params;
 
   // Function to handle button press
   const handlePress = () => Alert.alert("Not implemented");
+
+  async function uploadAudio(audio) {
+    const apiUrl = 'http://10.0.2.2:5000/upload-audio';
+    const fileType = 'audio/3gp'; 
+    const fileName = 'filename.3gp';
+    const formData = new FormData();
+    
+    formData.append('audio', {
+        name: fileName,
+        type: fileType,
+        uri: audio,
+    });
+
+    const options = {
+        method: 'POST',
+        body: formData,
+
+        headers: {
+        },
+    };
+
+    try {
+      const response = await fetch(apiUrl, options);
+      const result = await response.json();
+      
+      if (response.ok) {
+        Alert.alert("Success!");
+      } else {
+          console.error(result.message);
+      }
+  } catch (error) {
+      console.error(error);
+  }
+}
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
@@ -16,6 +50,9 @@ const AnalyseScreen = ({ route }) => {
         <Image source={{ uri: `data:image/png;base64,${fftImage}` }} style={styles.image} />
         <Text style={styles.imageLabel}>Audio in time:</Text>
         <Image source={{ uri: `data:image/png;base64,${timeImage}` }} style={styles.image} />
+        <View style={styles.buttonContainer}>
+          <Button title="Upload Audio" onPress={() => uploadAudio(audio)} color="#1423dc" />
+        </View>
         <View style={styles.buttonContainer}>
           <Button title="AI Analyse" onPress={handlePress} color={styles.button.color} />
         </View>

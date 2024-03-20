@@ -15,7 +15,7 @@ const MainScreen = ({navigation}) => {
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true
         });
-        const { recording } = await Audio.Recording.createAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+        const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
         setRecording(recording);
       }
     } catch (err) {}
@@ -52,7 +52,7 @@ const MainScreen = ({navigation}) => {
         <View style={styles.actionButtonContainer}>
           <Button onPress={() => recordingLine.sound.replayAsync()} title="Play" color="#41a57d" />
           <View style={{ width: 2 }} /> 
-          <Button onPress={() => uploadAudio(recordingLine.file)} title="Analyse" color="#1423dc" />
+          <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyse" color="#1423dc" />
         </View>
       </View>
       );
@@ -63,8 +63,8 @@ const MainScreen = ({navigation}) => {
     setRecordings([])
   }
 
-  async function uploadAudio(uri) {
-    const apiUrl = 'http://10.0.2.2:5000/upload-audio';
+  async function analyseAudio(uri) {
+    const apiUrl = 'http://10.0.2.2:5000/analyse-audio';
     const fileType = 'audio/3gp'; 
     const fileName = 'filename.3gp';
     const formData = new FormData();
@@ -88,10 +88,7 @@ const MainScreen = ({navigation}) => {
       const result = await response.json();
       
       if (response.ok) {
-          // const { fft_img, time_img } = result;
-          // Pass the images as props to the next page
-          // console.log(result);
-          navigation.navigate('Analysis', { fftImage: result.fft_img, timeImage: result.time_img });
+          navigation.navigate('Analysis', { fftImage: result.fft_img, timeImage: result.time_img, audio: uri });
       } else {
           console.error(result.message);
       }
