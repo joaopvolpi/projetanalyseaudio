@@ -5,16 +5,14 @@ import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 
+from config import *
 from datetime import datetime
 from pydub import AudioSegment
 from scipy.io.wavfile import read
 from flask import Flask, request, jsonify
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 app = Flask(__name__)
-
-UPLOAD_FOLDER = r'C:\Users\joaop\Documents\CentraleSupélec\3A\Projet Sopra Steria\AnalyseAudioExpo\backend\ReceivedFiles'
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
@@ -52,7 +50,7 @@ def upload_audio():
 @app.route('/test', methods=['POST'])
 def test():
     return jsonify({
-        'message': 'bonjour'
+        'message': UPLOAD_FOLDER
     }), 200
 
 def plot_fft_from_wav(file_path, file_name):
@@ -126,6 +124,21 @@ def convert_3gp_to_wav(input_file, output_file):
     
     # Export the audio to .wav format
     audio.export(output_file, format="wav")
+
+def send_to_azure(file_path):
+    connect_str = SECRET_CONNECTION_KEY
+
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    
+    container_name = 'projet-cs-sound'
+
+    blob_name = file_path.split('\\')[-1]
+
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+
+    with open(file_path, "rb") as data:
+        blob_client.upload_blob(data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
