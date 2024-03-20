@@ -12,8 +12,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/upload-audio', methods=['POST'])
-def upload_audio():
+@app.route('/analyse-audio', methods=['POST'])
+def analyse_audio():
    # Check if the request contains 'audio' as a file
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file part"}), 400
@@ -37,6 +37,9 @@ def upload_audio():
     fft_img = plot_fft_from_wav(converted_file_path, file_name)
     time_img = plot_audio_time(converted_file_path, file_name)
 
+    os.remove(received_audio_path)
+    os.remove(converted_file_path)
+
     response = jsonify({
         'message': 'File uploaded and processed successfullyy',
         'fft_img': fft_img,
@@ -48,7 +51,28 @@ def upload_audio():
 @app.route('/test', methods=['POST'])
 def test():
     return jsonify({
-        'message': UPLOAD_FOLDER
+        'message': 'Hello World!'
+    }), 200
+
+
+@app.route('/upload-audio', methods=['POST'])
+def upload_audio():
+    if 'audio' not in request.files:
+        return jsonify({"error": "No audio file part"}), 400
+
+    audio = request.files['audio']
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")    
+    file_name = f"Rec_{timestamp}"
+    audio.filename = f"{file_name}.3gp"
+    received_audio_path = os.path.join(UPLOAD_FOLDER, audio.filename)
+    
+    audio.save(received_audio_path)
+    # send_to_azure(received_audio_path) # Cloud Upload
+    os.remove(received_audio_path)
+
+    return jsonify({
+        'message': 'File Successfully Uploaded!'
     }), 200
 
 if __name__ == '__main__':

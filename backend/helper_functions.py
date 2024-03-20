@@ -3,6 +3,8 @@ import io
 import base64
 import librosa
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from config import *
