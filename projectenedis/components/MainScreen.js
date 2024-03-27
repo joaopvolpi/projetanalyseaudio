@@ -47,12 +47,12 @@ const MainScreen = ({navigation}) => {
       return (
         <View key={index} style={styles.row}>
         <Text style={styles.fill}>
-          Recording #{index + 1} | {recordingLine.duration}
+          Audio #{index + 1} | {recordingLine.duration}
         </Text>
         <View style={styles.actionButtonContainer}>
           <Button onPress={() => recordingLine.sound.replayAsync()} title="Play" color="#41a57d" />
           <View style={{ width: 2 }} /> 
-          <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyse" color="#1423dc" />
+          <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyser" color="#1423dc" />
         </View>
       </View>
       );
@@ -103,7 +103,7 @@ const MainScreen = ({navigation}) => {
       <Image source={require('../assets/Logo_enedis.png')} style={styles.logo} />
         <View style={styles.buttonContainer}>
           <Button 
-            title={recording ? 'Stop Recording' : 'Start Recording'} 
+            title={recording ? 'Arrêter enregistrement' : 'Enregistrer Audio'} 
             onPress={recording ? stopRecording : startRecording} 
             color="#41a57d"
           />
@@ -111,7 +111,7 @@ const MainScreen = ({navigation}) => {
         {getRecordingLines()}
         <View style={styles.buttonContainer}>
           <Button 
-            title='Clear Recordings' 
+            title='Supprimer Audio'
             onPress={clearRecordings} 
             color="#a52a2a" // Reddish color for Clear Recordings button
           />

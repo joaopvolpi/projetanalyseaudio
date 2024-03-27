@@ -23,38 +23,52 @@ const AnalyseScreen = ({ route }) => {
     const options = {
         method: 'POST',
         body: formData,
-
-        headers: {
-        },
+        headers: {},
     };
 
+    // Prompt for confirmation
+    const confirmed = await new Promise((resolve) => {
+        Alert.alert(
+            'Confirmation',
+            'Confirmez-vous l\'envoi de l\'audio au serveur Sopra Steria?',
+            [
+                { text: 'Annuler', onPress: () => resolve(false), style: 'cancel' },
+                { text: 'Confirmer', onPress: () => resolve(true) },
+            ],
+            { cancelable: false }
+        );
+    });
+
+    // If not confirmed, exit the function
+    if (!confirmed) return;
+
     try {
-      const response = await fetch(apiUrl, options);
-      const result = await response.json();
-      
-      if (response.ok) {
-        Alert.alert("Success!");
-      } else {
-          console.error(result.message);
-      }
-  } catch (error) {
-      console.error(error);
-  }
+        const response = await fetch(apiUrl, options);
+        const result = await response.json();
+        
+        if (response.ok) {
+            Alert.alert("Success!");
+        } else {
+            console.error(result.message);
+        }
+    } catch (error) {
+        console.error(error);
+    }
 }
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
       <View style={styles.contentContainer}>
         <Image source={require('../assets/Logo_enedis.png')} style={styles.logo} />
-        <Text style={styles.imageLabel}>Frequency Analysis:</Text>
+        <Text style={styles.imageLabel}>Analyse Fréquentielle:</Text>
         <Image source={{ uri: `data:image/png;base64,${fftImage}` }} style={styles.image} />
-        <Text style={styles.imageLabel}>Audio in time:</Text>
+        <Text style={styles.imageLabel}>Analyse Temporelle:</Text>
         <Image source={{ uri: `data:image/png;base64,${timeImage}` }} style={styles.image} />
         <View style={styles.buttonContainer}>
-          <Button title="Upload Audio" onPress={() => uploadAudio(audio)} color="#1423dc" />
+          <Button title="Téléverser Audio" onPress={() => uploadAudio(audio)} color="#1423dc" />
         </View>
         <View style={styles.buttonContainer}>
-          <Button title="AI Analyse" onPress={handlePress} color={styles.button.color} />
+          <Button title="Analyse IA" onPress={handlePress} color={styles.button.color} />
         </View>
       </View>
     </ScrollView>
