@@ -1,4 +1,4 @@
-azure_storage==0.37.0
+azure_storage-blob==0.37.0
 einops==0.7.0
 Flask==2.2.5
 librosa==0.10.1
