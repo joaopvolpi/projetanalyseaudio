@@ -37,13 +37,19 @@ def analyse_audio():
     fft_img = plot_fft_from_wav(converted_file_path, file_name)
     time_img = plot_audio_time(converted_file_path, file_name)
 
+    fft_array = get_fft_from_wav(converted_file_path)
+    
+    time_array = get_audio_from_wav(converted_file_path)
+
     os.remove(received_audio_path)
     os.remove(converted_file_path)
 
     response = jsonify({
         'message': 'File uploaded and processed successfullyy',
         'fft_img': fft_img,
-        'time_img': time_img
+        'time_img': time_img,
+        'fft_array': fft_array,
+        'time_array': time_array
     })
     return response, 200
 

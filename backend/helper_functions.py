@@ -14,8 +14,36 @@ from scipy.io.wavfile import read
 from flask import Flask, request, jsonify
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
+def get_fft_from_wav(file_path, downsample_factor = 10):
+    
+    y, sr = librosa.load(file_path)
+
+    # Compute FFT
+    fft = np.fft.fft(y)
+    
+    # Compute magnitude spectrum
+    magnitude = np.abs(fft)
+    
+    # Because FFT output is symmetric, only take the first half of the data
+    half_n = len(magnitude) // 2
+    magnitude = magnitude[:half_n]
+    
+    # Create frequency variable for the first half
+    frequency = np.linspace(0, sr/2, len(magnitude))
+    
+    # Downsample the data by selecting every 'downsample_factor' points
+    downsampled_frequency = frequency[::downsample_factor]
+    downsampled_magnitude = magnitude[::downsample_factor]
+    
+    # Prepare downsampled data for chart
+    chart_data = [{'x': float(freq), 'y': float(mag)} for freq, mag in zip(downsampled_frequency, downsampled_magnitude)]
+    
+    return chart_data
+
+
 def plot_fft_from_wav(file_path, file_name):
-    # Load the audio file
+    
+    # Create frequency variable
     y, sr = librosa.load(file_path)
 
     # Compute FFT
@@ -49,8 +77,30 @@ def plot_fft_from_wav(file_path, file_name):
     
     return image_data
 
+def get_audio_from_wav(file_path, downsample_factor=200):
+    # Read audio samples and sampling rate
+    sr, audio = read(file_path)
+    
+    # Downsample audio by selecting every 'downsample_factor' samples
+    downsampled_audio = audio[::downsample_factor]
+    
+    # Calculate time for each downsampled sample
+    time = np.linspace(0, len(downsampled_audio) / sr, num=len(downsampled_audio))
+    
+    # Convert downsampled audio amplitude to magnitude (absolute value for display purposes)
+    magnitude = np.abs(downsampled_audio)
+    
+    # Find the maximum magnitude value and set the example's y to be twice that value
+    max_magnitude = np.max(magnitude)
+    example_y_value = 1.3 * max_magnitude
+    
+    # Insert the example at the start
+    chart_data = [{'x': float(time[0]), 'y': float(example_y_value)}] + \
+                 [{'x': float(t), 'y': float(m)} for t, m in zip(time, magnitude)]
+    
+    return chart_data
+
 def plot_audio_time(file_path, file_name):
-    # Read audio samples
     input_data = read(file_path)
     audio = input_data[1]
 

@@ -51,7 +51,7 @@ const MainScreen = ({navigation}) => {
         </Text>
         <View style={styles.actionButtonContainer}>
           <Button onPress={() => recordingLine.sound.replayAsync()} title="Play" color="#41a57d" />
-          <View style={{ width: 2 }} /> 
+        <View style={{ width: 2 }} /> 
           <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyser" color="#1423dc" />
         </View>
       </View>
@@ -88,7 +88,8 @@ const MainScreen = ({navigation}) => {
       const result = await response.json();
       
       if (response.ok) {
-          navigation.navigate('Analysis', { fftImage: result.fft_img, timeImage: result.time_img, audio: uri });
+          navigation.navigate('Analysis', { fftImage: result.fft_img, timeImage: result.time_img, fft_array: result.fft_array, 
+          wav_array:result.time_array,audio: uri });
       } else {
           console.error(result.message);
       }

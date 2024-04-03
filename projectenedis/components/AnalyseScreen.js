@@ -1,9 +1,16 @@
 import React from 'react';
 import { StyleSheet, Text, ScrollView, View, Image, Button, Alert } from 'react-native';
+import { VictoryLine, VictoryChart, VictoryTheme, VictoryZoomContainer} from "victory-native";
 
 const AnalyseScreen = ({ route }) => {
   // Extracting FFT and time images from route params
-  const { fftImage, timeImage, audio } = route.params;
+  const { fftImage, timeImage, fft_array, wav_array, audio } = route.params;
+
+  const maxfftX = fft_array.length > 0 ? Math.max(...fft_array.map(item => item.x)) : 0;
+  const maxfftY = fft_array.length > 0 ? Math.max(...fft_array.map(item => item.y)) : 0;
+
+  const wavMaxX = wav_array.length > 0 ? Math.max(...wav_array.map(item => item.x)) : 0;
+  const wavMaxY = wav_array.length > 0 ? Math.max(...wav_array.map(item => item.y)) : 0;
 
   // Function to handle button press
   const handlePress = () => Alert.alert("Not implemented");
@@ -54,22 +61,35 @@ const AnalyseScreen = ({ route }) => {
     } catch (error) {
         console.error(error);
     }
-}
+  }
+
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
       <View style={styles.contentContainer}>
         <Image source={require('../assets/Logo_enedis.png')} style={styles.logo} />
         <Text style={styles.imageLabel}>Analyse Fréquentielle:</Text>
-        <Image source={{ uri: `data:image/png;base64,${fftImage}` }} style={styles.image} />
+      
+        <VictoryChart theme={VictoryTheme.material} containerComponent={<VictoryZoomContainer zoomDomain={{x: [0, maxfftX], y: [0, maxfftY]}}/>} >
+          <VictoryLine  
+              style={{
+                data: { stroke: "#c43a31" },
+                parent: { border: "1px solid #ccc"}
+              }}
+              data={fft_array}
+          />
+        </VictoryChart>
+
         <Text style={styles.imageLabel}>Analyse Temporelle:</Text>
-        <Image source={{ uri: `data:image/png;base64,${timeImage}` }} style={styles.image} />
-        <View style={styles.buttonContainer}>
-          <Button title="Téléverser Audio" onPress={() => uploadAudio(audio)} color="#1423dc" />
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button title="Analyse IA" onPress={handlePress} color={styles.button.color} />
-        </View>
+        <VictoryChart theme={VictoryTheme.material} containerComponent={<VictoryZoomContainer zoomDomain={{x: [0, wavMaxX], y: [0, wavMaxY]}}/>} >
+          <VictoryLine
+              style={{
+                data: { stroke: "#c43a31" },
+                parent: { border: "1px solid #ccc"}
+              }}
+              data={wav_array}
+          />
+        </VictoryChart>
       </View>
     </ScrollView>
   );
