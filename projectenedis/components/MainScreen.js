@@ -52,7 +52,7 @@ const MainScreen = ({navigation}) => {
         <View style={styles.actionButtonContainer}>
           <Button onPress={() => recordingLine.sound.replayAsync()} title="Play" color="#41a57d" />
         <View style={{ width: 2 }} /> 
-          <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyser" color="#1423dc" />
+          <Button onPress={() => analyseAudio(recordingLine.file)} title="Analyse" color="#1423dc" />
         </View>
       </View>
       );
