@@ -90,6 +90,13 @@ const AnalyseScreen = ({ route }) => {
               data={wav_array}
           />
         </VictoryChart>
+        <View style={styles.buttonContainer}>
+          <Button title="Téléverser Audio" onPress={() => uploadAudio(audio)} color="#1423dc" />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button title="Analyse IA" onPress={handlePress} color={styles.button.color} />
+        </View>
+
       </View>
     </ScrollView>
   );
