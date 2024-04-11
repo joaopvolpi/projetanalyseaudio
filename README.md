@@ -8,7 +8,7 @@ This project aims to develop a portable tool for detecting failures in electrica
 
 - **Audio Data Capture**: Capture audio from electrical equipment using a mobile device.
 - **Audio Analysis**: Analyze audio signals using Fast Fourier Transforms (FFT) and spectrograms to detect anomalies.
-- **Real-Time AI Analysis**: Utilize a trained AI model to classify the equipment status as either 'potential failure' or 'regular functioning'.
+- **Real-Time AI Analysis**: Utilize an AI model to classify the equipment status as either 'potential failure' or 'regular functioning'. The model is not yet implemented, since the dataset is still being collected.
 - **Mobile App**: A user-friendly mobile application that allows technicians to record, analyze, and upload audio data to a centralized server.
 - **Data Collection**: Facilitate data gathering for continuous improvement of the AI model.
 
