@@ -16,7 +16,7 @@ This project aims to develop a portable tool for detecting failures in electrica
 
 - `/projectenedis`: Contains the source code for the mobile application developed using React Native.
 - `/backend`: Flask API for handling audio data processing and machine learning model interaction.
-- `/backend/models`: Trained machine learning models used for audio classification.
+- `/backend/AI`: Preprocessing files and notebook used for model training.
 
 ## Getting Started
 
@@ -42,6 +42,11 @@ pip install -r requirements.txt
 
 cd ../projectenedis
 npm install
+
+4. Create config.py file:
+
+Use config_example.py as an example
+Create file in folder /backend
 
 ### Running the Application
 
