@@ -1,5 +1,7 @@
 # Electrical Equipment Failure Detection Tool
 
+<img src="https://github.com/joaopvolpi/projetanalyseaudio/assets/54219596/b270e23b-29c4-4d9c-8048-8cf09c99207c" width="200">
+
 ## Overview
 
 This project aims to develop a portable tool for detecting failures in electrical equipment using sound analysis.
